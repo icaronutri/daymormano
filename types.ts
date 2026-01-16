@@ -10,6 +10,21 @@ export enum FeedbackStatus {
   PENDENTE = 'PENDENTE'
 }
 
+export type MessageType = 'text' | 'meal' | 'body' | 'training' | 'feedback';
+
+export interface ChatMessage {
+  id: string;
+  student_id: string;
+  sender_id: string;
+  sender_role: UserRole;
+  type: MessageType;
+  text?: string;
+  attachments?: string[]; // URLs das imagens
+  timestamp: string;
+  date: string; // YYYY-MM-DD para agrupamento
+  status?: FeedbackStatus;
+}
+
 export interface Profile {
   id: string;
   role: UserRole;
@@ -37,10 +52,11 @@ export interface Document {
   confirmedAt?: string;
 }
 
+// ActivityLog mantido para compatibilidade, mas mensagens serão o foco
 export interface ActivityLog {
   id: string;
   student_id: string;
-  type: 'training' | 'meal';
+  type: 'training' | 'meal' | 'body';
   timestamp: string;
   imageUrl?: string;
   notes?: string;

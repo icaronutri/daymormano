@@ -27,6 +27,18 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
       return;
     }
 
+    // Fixed Student check (Ivanete Rocha)
+    if (email === 'ivanete@gmail.com' && password === '2404') {
+      onLogin({
+        id: 'fixed-ivanete',
+        name: 'Ivanete Rocha',
+        email: email,
+        role: UserRole.ALUNO,
+        is_master: false
+      });
+      return;
+    }
+
     // Check localStorage for other users registered by Master
     const storedUsers = JSON.parse(localStorage.getItem('focuscoach_users') || '[]');
     const user = storedUsers.find((u: any) => u.email === email && u.password === password);

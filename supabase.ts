@@ -1,18 +1,11 @@
 
-// NOTE: Since this environment provides a controlled context, 
-// we assume the environment variables are available.
-// In a real app, these would be your Supabase project credentials.
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://your-project.supabase.co'; // Mocked
 const supabaseAnonKey = 'your-anon-key'; // Mocked
 
-// This is a stub for the actual client. 
-// In a real environment, the user would provide these.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Helper for image compression as requested
 export const compressImage = async (file: File): Promise<{ blob: Blob; url: string }> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -61,4 +54,21 @@ export const compressImage = async (file: File): Promise<{ blob: Blob; url: stri
     };
     reader.onerror = (error) => reject(error);
   });
+};
+
+/**
+ * Mock de exclusão de arquivo do storage
+ */
+export const deleteFileFromStorage = async (path: string): Promise<void> => {
+  console.log(`Excluindo arquivo: ${path}`);
+  // Em um app real: await supabase.storage.from('images').remove([path]);
+  return Promise.resolve();
+};
+
+/**
+ * Helper para organizar o path das fotos
+ */
+export const getStoragePath = (studentId: string, type: 'meal' | 'body', fileName: string) => {
+  const date = new Date().toISOString().split('T')[0];
+  return `${studentId}/${date}/${type}/${fileName}`;
 };
