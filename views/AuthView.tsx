@@ -15,7 +15,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Master Coach check
+    // Master Coach check (Hardcoded credentials)
     if (email === 'icarogarciacel@gmail.com' && password === '2404') {
       onLogin({
         id: 'master-1',
@@ -48,7 +48,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+          <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-blue-100">
             <span className="text-white text-3xl font-bold">F</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-800">FocusCoach</h1>
@@ -56,30 +56,30 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100">
+          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 animate-in fade-in zoom-in duration-300">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Email</label>
             <input
               type="email"
               required
-              placeholder="Digite seu email"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="seu@email.com"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Senha</label>
             <input
               type="password"
               required
-              placeholder="Sua senha"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="••••"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -87,15 +87,15 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200"
+            className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 mt-2"
           >
-            Entrar
+            Entrar na Plataforma
           </button>
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-[10px] text-slate-400">
-            Apenas usuários cadastrados pela administração podem acessar.
+          <p className="text-[10px] text-slate-400 font-medium">
+            SISTEMA DE ACESSO RESTRITO AOS ALUNOS E COACHES DA FOCUSCOACH
           </p>
         </div>
       </div>
