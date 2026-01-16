@@ -95,7 +95,7 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Docs Section */}
           <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><FileText className="text-blue-500" size={18} /> Planos Ativos</h3>
+            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><FileText className="text-orange-500" size={18} /> Planos Ativos</h3>
             <div className="space-y-3">
               {['meal_plan', 'workout'].map(type => {
                 const doc = studentDocs.find(d => d.type === type);
@@ -108,10 +108,10 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
                     {doc ? (
                       <div className="flex items-center justify-between mt-1">
                         <p className="text-sm font-bold text-slate-700 truncate flex-1">{doc.name}</p>
-                        <a href={doc.url} target="_blank" className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><Eye size={16} /></a>
+                        <a href={doc.url} target="_blank" className="p-1.5 text-orange-500 hover:bg-orange-50 rounded-lg"><Eye size={16} /></a>
                       </div>
                     ) : (
-                      <label className="flex items-center justify-center gap-2 py-2 mt-1 border border-dashed border-slate-300 rounded-xl text-slate-400 cursor-pointer hover:border-blue-400 hover:text-blue-500 transition-all">
+                      <label className="flex items-center justify-center gap-2 py-2 mt-1 border border-dashed border-slate-300 rounded-xl text-slate-400 cursor-pointer hover:border-orange-400 hover:text-orange-500 transition-all">
                         <Upload size={14} /><span className="text-[10px] font-bold">Upload PDF</span>
                         <input type="file" accept=".pdf" className="hidden" onChange={(e) => handleFileUpload(selectedStudent, type as any, e)} />
                       </label>
@@ -129,9 +129,9 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
                   <p className="text-[10px] text-emerald-600 font-bold uppercase">Treino/Hoje</p>
                   <p className="text-xl font-bold text-emerald-800">{student?.trainingToday ? 'SIM' : 'NÃO'}</p>
                </div>
-               <div className="p-4 bg-blue-50 rounded-2xl">
-                  <p className="text-[10px] text-blue-600 font-bold uppercase">Refeições/Hoje</p>
-                  <p className="text-xl font-bold text-blue-800">{student?.mealsToday}</p>
+               <div className="p-4 bg-orange-50 rounded-2xl">
+                  <p className="text-[10px] text-orange-600 font-bold uppercase">Refeições/Hoje</p>
+                  <p className="text-xl font-bold text-orange-800">{student?.mealsToday}</p>
                </div>
             </div>
           </div>
@@ -203,20 +203,20 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
             <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl p-2 flex flex-col">
               <textarea placeholder="Enviar feedback para o aluno..." className="bg-transparent border-none focus:ring-0 text-sm w-full p-2 resize-none h-12" value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} />
             </div>
-            <button className="p-4 bg-blue-600 text-white rounded-2xl shadow-lg active:scale-95 transition-all"><Send size={20} /></button>
+            <button className="p-4 bg-orange-600 text-white rounded-2xl shadow-lg active:scale-95 transition-all"><Send size={20} /></button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Seção de Gestão (inalterada)
+  // Seção de Gestão
   if (activeTab === 'management' && user.is_master) {
      return (
       <div className="space-y-6 animate-in fade-in duration-300">
         <h2 className="text-2xl font-bold text-slate-800">Gestão de Usuários</h2>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mb-6">
-          <div className="flex items-center gap-2 mb-4 text-blue-600"><UserPlus size={20} /><h3 className="font-bold">Cadastrar Novo Usuário</h3></div>
+          <div className="flex items-center gap-2 mb-4 text-orange-600"><UserPlus size={20} /><h3 className="font-bold">Cadastrar Novo Usuário</h3></div>
           <form onSubmit={(e) => {
             e.preventDefault();
             const id = Math.random().toString(36).substr(2, 9);
@@ -229,7 +229,7 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
             <input type="email" required placeholder="Email" className="px-4 py-2 border rounded-xl" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} />
             <input type="password" required placeholder="Senha" className="px-4 py-2 border rounded-xl" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
             <select className="px-4 py-2 border rounded-xl bg-white" value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value as UserRole})}><option value={UserRole.ALUNO}>Aluno</option><option value={UserRole.COACH}>Coach</option></select>
-            <button className="md:col-span-2 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Salvar Usuário</button>
+            <button className="md:col-span-2 bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">Salvar Usuário</button>
           </form>
         </div>
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
@@ -248,7 +248,7 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
         <h2 className="text-2xl font-bold text-slate-800">Seus Alunos</h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input type="text" placeholder="Buscar aluno..." className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full md:w-64" />
+          <input type="text" placeholder="Buscar aluno..." className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm w-full md:w-64" />
         </div>
       </div>
 
@@ -274,10 +274,10 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
               <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center ${student.trainingToday ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-300'}`}>
                 <Dumbbell size={20} />
               </div>
-              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center ${student.mealsToday > 0 ? 'bg-blue-50 text-blue-500' : 'bg-slate-50 text-slate-300'}`}>
+              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center ${student.mealsToday > 0 ? 'bg-orange-50 text-orange-500' : 'bg-slate-50 text-slate-300'}`}>
                 <Utensils size={20} />
                 {student.unreviewed > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[8px] font-bold rounded-full border border-white flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-600 text-white text-[8px] font-bold rounded-full border border-white flex items-center justify-center">
                     {student.unreviewed}
                   </span>
                 )}

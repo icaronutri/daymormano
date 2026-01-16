@@ -35,8 +35,9 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 z-30">
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-blue-600">FocusCoach</h1>
-          {user.is_master && <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Master Coach</span>}
+          <h1 className="text-xl font-bold text-orange-600">Day Mormano</h1>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Consultoria</p>
+          {user.is_master && <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest block mt-1">Master Coach</span>}
         </div>
         <nav className="flex-1 px-4 space-y-1">
           {tabs.map((tab) => (
@@ -44,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                activeTab === tab.id ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-500 hover:bg-slate-50'
+                activeTab === tab.id ? 'bg-orange-50 text-orange-600 font-semibold' : 'text-slate-500 hover:bg-slate-50'
               }`}
             >
               <tab.icon size={20} />
@@ -54,7 +55,7 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
         </nav>
         <div className="p-4 border-t border-slate-100">
           <div className="px-4 py-3 mb-2 flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+             <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
                 {user.name.charAt(0)}
              </div>
              <div className="flex flex-col overflow-hidden">
@@ -75,8 +76,11 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
       {/* Header Mobile */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-blue-600 leading-none">FocusCoach</h1>
-            {user.is_master && <span className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mt-1">Master</span>}
+            <h1 className="text-xl font-bold text-orange-600 leading-none">Day Mormano</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Consultoria</span>
+              {user.is_master && <span className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">Master</span>}
+            </div>
         </div>
         <button onClick={onLogout} className="text-slate-400">
           <LogOut size={20} />
@@ -95,7 +99,7 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex flex-col items-center gap-1 p-2 min-w-[64px] transition-all ${
-              activeTab === tab.id ? 'text-blue-600' : 'text-slate-400'
+              activeTab === tab.id ? 'text-orange-600' : 'text-slate-400'
             }`}
           >
             <tab.icon size={24} strokeWidth={activeTab === tab.id ? 2.5 : 2} />

@@ -88,12 +88,12 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
     <div className="space-y-6 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50">
         <div className="flex items-center gap-6 mb-8">
-          <div className="w-20 h-20 rounded-3xl bg-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-200">
+          <div className="w-20 h-20 rounded-3xl bg-orange-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-orange-200">
             {user.name.charAt(0)}
           </div>
           <div>
             <h2 className="text-2xl font-bold text-slate-800">Olá, {user.name.split(' ')[0]}!</h2>
-            <p className="text-sm text-slate-400 font-medium">Acompanhe sua rotina de hoje</p>
+            <p className="text-sm text-slate-400 font-medium">Sua evolução começa hoje</p>
           </div>
         </div>
 
@@ -104,19 +104,19 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
              </div>
              <p className="text-lg font-bold text-slate-800">84.5kg</p>
           </div>
-          <div className="bg-blue-50 p-4 rounded-3xl border border-blue-100 col-span-3">
-             <div className="flex items-center justify-between text-blue-500 mb-2">
+          <div className="bg-orange-50 p-4 rounded-3xl border border-orange-100 col-span-3">
+             <div className="flex items-center justify-between text-orange-500 mb-2">
                 <div className="flex items-center gap-2">
                    <Droplets size={14} /> <span className="text-[10px] font-bold uppercase tracking-wider">Hidratação</span>
                 </div>
                 <span className="text-[10px] font-bold">{Math.round((water/waterGoal)*100)}%</span>
              </div>
-             <div className="w-full bg-blue-100 h-2 rounded-full overflow-hidden mb-2">
-                <div className="bg-blue-500 h-full transition-all duration-700" style={{ width: `${(water/waterGoal)*100}%` }}></div>
+             <div className="w-full bg-orange-100 h-2 rounded-full overflow-hidden mb-2">
+                <div className="bg-orange-500 h-full transition-all duration-700" style={{ width: `${(water/waterGoal)*100}%` }}></div>
              </div>
              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-blue-800">{water} / {waterGoal}ml</span>
-                <button onClick={() => setWater(w => Math.min(waterGoal, w + 250))} className="bg-white text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm active:scale-95 transition-all"> + 250ml </button>
+                <span className="text-xs font-bold text-orange-800">{water} / {waterGoal}ml</span>
+                <button onClick={() => setWater(w => Math.min(waterGoal, w + 250))} className="bg-white text-orange-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm active:scale-95 transition-all"> + 250ml </button>
              </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
             {['meal_plan', 'workout'].map(type => {
                const doc = documents.filter(d => d.student_id === user.id).find(d => d.type === type);
                return (
-                  <div key={type} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between h-44 group hover:border-blue-200 transition-all">
+                  <div key={type} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between h-44 group hover:border-orange-200 transition-all">
                      <div className="flex justify-between items-start">
                         <div className={`p-3 rounded-2xl ${type === 'meal_plan' ? 'bg-orange-50 text-orange-500' : 'bg-purple-50 text-purple-500'}`}>
                            {type === 'meal_plan' ? <Utensils size={24} /> : <Dumbbell size={24} />}
@@ -141,15 +141,15 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
                            <div className="flex items-center justify-between mt-2">
                               <span className="text-[10px] text-slate-400">{new Date(doc.uploadedAt).toLocaleDateString()}</span>
                               <div className="flex gap-2">
-                                 <a href={doc.url} target="_blank" className="p-2 bg-slate-50 text-slate-400 rounded-xl hover:text-blue-600 transition-colors"><Eye size={18} /></a>
+                                 <a href={doc.url} target="_blank" className="p-2 bg-slate-50 text-slate-400 rounded-xl hover:text-orange-600 transition-colors"><Eye size={18} /></a>
                                  {!doc.confirmedAt && (
-                                    <button onClick={() => handleConfirmDoc(doc.id)} className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-bold rounded-xl shadow-lg shadow-blue-100">Confirmar</button>
+                                    <button onClick={() => handleConfirmDoc(doc.id)} className="px-3 py-1.5 bg-orange-600 text-white text-[10px] font-bold rounded-xl shadow-lg shadow-orange-100">Confirmar</button>
                                  )}
                                  {doc.confirmedAt && <div className="p-2 bg-emerald-50 text-emerald-500 rounded-xl"><Check size={18} strokeWidth={3} /></div>}
                               </div>
                            </div>
                         ) : (
-                           <p className="text-[10px] text-slate-300 italic mt-1">Aguardando envio do coach...</p>
+                           <p className="text-[10px] text-slate-300 italic mt-1">Aguardando envio da consultoria...</p>
                         )}
                      </div>
                   </div>
@@ -162,7 +162,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
         <button
           onClick={handleToggleTraining}
           className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all ${
-            trainedToday ? 'bg-emerald-50 border-emerald-500 text-emerald-800' : 'bg-white border-slate-100 text-slate-700 hover:border-blue-200'
+            trainedToday ? 'bg-emerald-50 border-emerald-500 text-emerald-800' : 'bg-white border-slate-100 text-slate-700 hover:border-orange-200'
           }`}
         >
           <div className="flex items-center gap-4">
@@ -179,8 +179,8 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
 
         <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2"><Utensils size={18} className="text-blue-500" /> Diário de Refeições</h3>
-              <label className="bg-blue-600 text-white px-4 py-2 rounded-2xl text-[10px] font-bold flex items-center gap-2 cursor-pointer active:scale-95 transition-all shadow-lg shadow-blue-100">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2"><Utensils size={18} className="text-orange-500" /> Diário de Refeições</h3>
+              <label className="bg-orange-600 text-white px-4 py-2 rounded-2xl text-[10px] font-bold flex items-center gap-2 cursor-pointer active:scale-95 transition-all shadow-lg shadow-orange-100">
                  <input type="file" accept="image/*" className="hidden" onChange={handleMealUpload} disabled={uploading} />
                  {uploading ? 'Processando...' : <><Camera size={14}/> Registrar</>}
               </label>
@@ -217,7 +217,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
             {activities.map(a => (
               <div key={a.id} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-none">
                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${a.type === 'training' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
+                    <div className={`p-2 rounded-lg ${a.type === 'training' ? 'bg-emerald-50 text-emerald-500' : 'bg-orange-50 text-orange-500'}`}>
                        {a.type === 'training' ? <Dumbbell size={16} /> : <Utensils size={16} />}
                     </div>
                     <div>
@@ -240,7 +240,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, user }) => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-slate-800 mb-4">Feedbacks Recentes</h2>
           <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-             <p className="text-sm text-slate-500">Acesse seus feedbacks e interações com o coach aqui.</p>
+             <p className="text-sm text-slate-500">Acesse seus feedbacks e interações com a Day Mormano aqui.</p>
           </div>
         </div>
       )}

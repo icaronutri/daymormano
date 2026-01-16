@@ -48,11 +48,11 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-blue-100">
-            <span className="text-white text-3xl font-bold">F</span>
+          <div className="w-16 h-16 bg-orange-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-orange-100">
+            <span className="text-white text-3xl font-bold">D</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">FocusCoach</h1>
-          <p className="text-slate-500 mt-1">Sua assessoria de elite</p>
+          <h1 className="text-2xl font-bold text-slate-800 leading-tight">Day Mormano</h1>
+          <p className="text-orange-500 font-bold uppercase tracking-widest text-[10px]">Consultoria Esportiva</p>
         </div>
 
         {error && (
@@ -68,7 +68,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
               type="email"
               required
               placeholder="seu@email.com"
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all bg-slate-50/50"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -79,7 +79,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
               type="password"
               required
               placeholder="••••"
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all bg-slate-50/50"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -87,15 +87,15 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 mt-2"
+            className="w-full bg-orange-600 text-white font-bold py-4 rounded-2xl hover:bg-orange-700 active:scale-[0.98] transition-all shadow-lg shadow-orange-200 mt-2"
           >
-            Entrar na Plataforma
+            Acessar Consultoria
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-[10px] text-slate-400 font-medium">
-            SISTEMA DE ACESSO RESTRITO AOS ALUNOS E COACHES DA FOCUSCOACH
+            SISTEMA DE ACESSO RESTRITO - DAY MORMANO CONSULTORIA
           </p>
         </div>
       </div>
