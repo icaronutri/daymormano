@@ -100,6 +100,11 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
         {children}
       </main>
 
+      {/* Build Marker */}
+      <div className="fixed bottom-0 left-0 p-1 pointer-events-none z-[60]">
+        <span className="text-[7px] text-slate-300 font-mono tracking-tighter opacity-50">Build Test: 2026-01-18-0835</span>
+      </div>
+
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around items-center px-4 py-2 safe-area-bottom z-30 overflow-x-auto">
         {tabs.map((tab) => (
