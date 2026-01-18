@@ -20,7 +20,7 @@ export interface ChatMessage {
   type: MessageType;
   text?: string;
   attachments?: string[]; // URLs das imagens
-  timestamp: string;
+  created_at: string; // Alinhado com o banco de dados
   date: string; // YYYY-MM-DD para agrupamento
   status?: FeedbackStatus;
 }
@@ -52,7 +52,6 @@ export interface Document {
   confirmedAt?: string;
 }
 
-// ActivityLog mantido para compatibilidade, mas mensagens serão o foco
 export interface ActivityLog {
   id: string;
   student_id: string;
