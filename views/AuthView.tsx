@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { UserRole, Profile } from '../types';
 
@@ -15,11 +14,11 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Master Coach check (Hardcoded credentials)
+    // Treinador check (Hardcoded credentials)
     if (email === 'icarogarciacel@gmail.com' && password === '2404') {
       onLogin({
         id: 'master-1',
-        name: 'Ícaro Garcia (Master)',
+        name: 'Ícaro Garcia (Treinador)',
         email: email,
         role: UserRole.COACH,
         is_master: true
@@ -105,9 +104,12 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-[10px] text-slate-400 font-medium">
+        <div className="mt-8 text-center space-y-2">
+          <p className="text-[10px] text-slate-400 font-medium tracking-tight">
             SISTEMA DE ACESSO RESTRITO - DAY MORMANO CONSULTORIA
+          </p>
+          <p className="text-[8px] text-slate-300 font-bold uppercase tracking-[0.15em]">
+            desenvolvido por ÍCARO GARCIA BY UM LEÃO POR DIA
           </p>
         </div>
       </div>

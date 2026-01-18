@@ -38,7 +38,7 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
           <div>
             <h1 className="text-xl font-bold text-orange-600 leading-tight">Day Mormano</h1>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Consultoria</p>
-            {user.is_master && <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest block mt-1">Master Coach</span>}
+            {user.is_master && <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest block mt-1">Treinador</span>}
           </div>
           <SupabaseStatusIndicator />
         </div>
@@ -83,7 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
               <h1 className="text-xl font-bold text-orange-600 leading-none">Day Mormano</h1>
               <div className="flex items-center gap-2">
                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Consultoria</span>
-                {user.is_master && <span className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">Master</span>}
+                {user.is_master && <span className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">Treinador</span>}
               </div>
           </div>
         </div>
