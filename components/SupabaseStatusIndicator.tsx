@@ -24,7 +24,7 @@ const SupabaseStatusIndicator: React.FC = () => {
       // Consulta ultra-leve para testar conectividade
       const { error } = await supabase
         .from('profiles')
-        .select('id', { count: 'head' })
+        .select('id')
         .limit(1)
         .abortSignal(controller.signal);
 
