@@ -22,9 +22,10 @@ const SupabaseStatusIndicator: React.FC = () => {
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       // Consulta ultra-leve para testar conectividade
+      // Nota: 'count' aceita "exact", "planned" ou "estimated".
       const { error } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id', { count: 'exact' })
         .limit(1)
         .abortSignal(controller.signal);
 
