@@ -17,18 +17,21 @@ const ChatThread: React.FC<ChatThreadProps> = ({
   onUpdateStatus 
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll para o final
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollToBottom();
   }, [messages]);
 
   // Agrupar por data
   const grouped = messages.reduce((acc: any, msg) => {
-    if (!acc[msg.date]) acc[msg.date] = [];
-    acc[msg.date].push(msg);
+    const dateKey = msg.date || new Date(msg.created_at).toISOString().split('T')[0];
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(msg);
     return acc;
   }, {});
 
@@ -37,12 +40,15 @@ const ChatThread: React.FC<ChatThreadProps> = ({
   return (
     <div 
       ref={scrollRef}
-      className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-slate-50/50"
-      style={{ maxHeight: 'calc(100vh - 250px)' }}
+      className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/80 relative"
+      style={{ 
+        backgroundImage: `url("https://www.transparenttextures.com/patterns/cubes.png")`,
+        backgroundOpacity: 0.05
+      }}
     >
       {sortedDates.length === 0 && (
         <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-2 opacity-60">
-           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-slate-100">
+           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-slate-100 shadow-sm">
               💬
            </div>
            <p className="text-sm font-medium italic">Nenhuma interação ainda. Inicie a conversa!</p>
@@ -76,6 +82,7 @@ const ChatThread: React.FC<ChatThreadProps> = ({
           </div>
         );
       })}
+      <div ref={bottomRef} className="h-2" />
     </div>
   );
 };

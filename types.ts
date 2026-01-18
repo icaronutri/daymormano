@@ -1,4 +1,3 @@
-
 export enum UserRole {
   COACH = 'COACH',
   ALUNO = 'ALUNO'
@@ -14,14 +13,18 @@ export type MessageType = 'text' | 'meal' | 'body' | 'training' | 'feedback';
 
 export interface ChatMessage {
   id: string;
+  client_id?: string; 
+  pending?: boolean; 
+  local_created_at?: number; 
+  delivery_status?: 'sending' | 'sent' | 'failed';
   student_id: string;
   sender_id: string;
   sender_role: UserRole;
   type: MessageType;
   text?: string;
-  attachments?: string[]; // URLs das imagens
-  created_at: string; // Alinhado com o banco de dados
-  date: string; // YYYY-MM-DD para agrupamento
+  attachments?: string[]; 
+  created_at: string; 
+  date: string; 
   status?: FeedbackStatus;
 }
 
