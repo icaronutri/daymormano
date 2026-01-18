@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Cloud } from 'lucide-react';
 import { supabase } from '../supabase';
 
+/**
+ * Indicador visual do status da conexão com o Supabase.
+ * Última atualização: Ajuste de texto para forçar rebuild.
+ * Commit Ref: 7f8c2a1
+ */
 const SupabaseStatusIndicator: React.FC = () => {
   const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
@@ -48,7 +53,7 @@ const SupabaseStatusIndicator: React.FC = () => {
   return (
     <div 
       className="flex items-center justify-center p-1.5 rounded-lg transition-all duration-500"
-      title={isOnline ? "Conectado ao servidor" : isChecking ? "Verificando..." : "Sem conexão com o servidor"}
+      title={isOnline ? "Servidor Conectado e Operacional" : isChecking ? "Verificando..." : "Sem conexão com o servidor no momento"}
       aria-label={isOnline ? "Supabase Online" : "Supabase Offline"}
     >
       <div className="relative">
