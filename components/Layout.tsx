@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Home, Calendar, MessageSquare, Users, BarChart3, LogOut, Settings } from 'lucide-react';
 import { UserRole, Profile } from '../types';
+import SupabaseStatusIndicator from './SupabaseStatusIndicator';
 
 interface LayoutProps {
   user: Profile;
@@ -34,10 +34,13 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
     <div className="flex flex-col min-h-screen pb-20 md:pb-0 md:pl-64">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 z-30">
-        <div className="p-6">
-          <h1 className="text-xl font-bold text-orange-600">Day Mormano</h1>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Consultoria</p>
-          {user.is_master && <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest block mt-1">Master Coach</span>}
+        <div className="p-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-orange-600 leading-tight">Day Mormano</h1>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Consultoria</p>
+            {user.is_master && <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest block mt-1">Master Coach</span>}
+          </div>
+          <SupabaseStatusIndicator />
         </div>
         <nav className="flex-1 px-4 space-y-1">
           {tabs.map((tab) => (
@@ -75,16 +78,21 @@ const Layout: React.FC<LayoutProps> = ({ user, activeTab, setActiveTab, onLogout
 
       {/* Header Mobile */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 sticky top-0 z-20">
-        <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-orange-600 leading-none">Day Mormano</h1>
-            <div className="flex items-center gap-2">
-              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Consultoria</span>
-              {user.is_master && <span className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">Master</span>}
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+              <h1 className="text-xl font-bold text-orange-600 leading-none">Day Mormano</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Consultoria</span>
+                {user.is_master && <span className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">Master</span>}
+              </div>
+          </div>
         </div>
-        <button onClick={onLogout} className="text-slate-400">
-          <LogOut size={20} />
-        </button>
+        <div className="flex items-center gap-4">
+          <SupabaseStatusIndicator />
+          <button onClick={onLogout} className="text-slate-400">
+            <LogOut size={20} />
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}

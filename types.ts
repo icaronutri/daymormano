@@ -71,3 +71,23 @@ export interface StudentWithStats extends Profile {
   unreviewed_meals?: number;
   metrics?: HealthMetrics;
 }
+
+export interface UploadResult {
+  publicUrl: string;
+  path: string;
+  sizeInBytes: number;
+}
+
+export interface StorageFile {
+  name: string;
+  id: string;
+  updated_at: string;
+  created_at: string;
+  last_accessed_at: string;
+  metadata: Record<string, any>;
+}
+
+export interface SupabaseInsertResult<T = any> {
+  data: T | null;
+  error: any;
+}
