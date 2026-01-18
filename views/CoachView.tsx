@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Dumbbell, Utensils, Send, ChevronLeft, 
   User, MessageCircle, Zap, CheckCircle2, BarChart3, Users, Bell, 
-  Settings, UserPlus, Inbox, RefreshCw
+  Settings, UserPlus, Inbox, RefreshCw, X, Plus, ShieldCheck, Mail, Lock
 } from 'lucide-react';
 import { UserRole, Profile, FeedbackStatus, ChatMessage } from '../types';
 import { supabase } from '../supabase';
@@ -20,6 +20,15 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
   const [students, setStudents] = useState<any[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: UserRole.ALUNO
+  });
+  const [creatingUser, setCreatingUser] = useState(false);
 
   const quickReplies = [
     "Ótima escolha! ✅",
@@ -35,11 +44,14 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('role', UserRole.ALUNO);
+        .eq('role', UserRole.ALUNO)
+        .order('name');
       
       if (!error && data) {
         setStudents(data);
       }
+    } catch (err) {
+      console.error("Erro ao buscar alunos:", err);
     } finally {
       setLoading(false);
     }
@@ -82,6 +94,40 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
 
     await supabase.from('messages').insert(newMsg);
     setFeedbackText('');
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (creatingUser) return;
+    
+    setCreatingUser(true);
+    try {
+      const emailLower = newUserData.email.toLowerCase().trim();
+      const tempId = crypto.randomUUID();
+      
+      const { error } = await supabase.from('profiles').insert({
+        id: tempId,
+        name: newUserData.name,
+        email: emailLower,
+        role: newUserData.role,
+        is_master: newUserData.role === UserRole.COACH,
+        // Salvamos a senha temporária para ser usada no primeiro login (ativação)
+        temp_password: newUserData.password 
+      });
+
+      if (error) throw error;
+
+      alert(`✅ CADASTRADO COM SUCESSO!\n\nO ${newUserData.role === UserRole.ALUNO ? 'Aluno' : 'Treinador'} "${newUserData.name}" já pode acessar o app.\n\nEmail: ${emailLower}\nSenha: ${newUserData.password}`);
+      
+      setIsAddModalOpen(false);
+      setNewUserData({ name: '', email: '', password: '', role: UserRole.ALUNO });
+      fetchStudents();
+    } catch (err: any) {
+      console.error("Erro no cadastro:", err);
+      alert('Erro ao cadastrar: ' + (err.message || 'Verifique sua conexão.'));
+    } finally {
+      setCreatingUser(false);
+    }
   };
 
   if (selectedStudent) {
@@ -136,7 +182,7 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500 relative">
       {activeTab === 'dashboard' && (
         <div className="space-y-6">
           <h2 className="text-2xl font-black text-slate-800">Seu Dashboard</h2>
@@ -179,16 +225,24 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
         <>
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-black text-slate-800">Meus Alunos</h2>
-            <button 
-              onClick={fetchStudents}
-              className="p-2 bg-white rounded-xl text-slate-400 hover:text-orange-600 border border-slate-100 transition-colors shadow-sm"
-              title="Atualizar lista"
-            >
-              <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={fetchStudents}
+                className="p-2 bg-white rounded-xl text-slate-400 hover:text-orange-600 border border-slate-100 transition-colors shadow-sm"
+                title="Atualizar lista"
+              >
+                <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+              </button>
+              <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-lg shadow-orange-100 active:scale-95 transition-all"
+              >
+                <Plus size={16} /> Novo Aluno
+              </button>
+            </div>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 pb-24">
             {loading && students.length === 0 ? (
               <div className="flex justify-center py-20">
                 <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
@@ -197,7 +251,7 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
               <div className="bg-white p-12 rounded-[2.5rem] border border-dashed border-slate-200 text-center flex flex-col items-center">
                 <UserPlus size={48} className="text-slate-200 mb-4" />
                 <p className="text-slate-500 font-bold text-sm">Nenhum aluno cadastrado.</p>
-                <p className="text-[10px] text-slate-400 font-bold uppercase mt-2">Peça para seus alunos logarem!</p>
+                <button onClick={() => setIsAddModalOpen(true)} className="text-orange-600 text-[10px] font-bold uppercase mt-4 underline">Clique aqui para adicionar o primeiro</button>
               </div>
             ) : (
               students.map((student) => (
@@ -234,17 +288,108 @@ const CoachView: React.FC<CoachViewProps> = ({ activeTab, user }) => {
                     <p className="text-xs text-slate-400">Configurações globais do sistema.</p>
                  </div>
               </div>
-              <div className="space-y-3">
-                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center">
-                    <span className="text-sm font-bold text-slate-700">Visibilidade Pública</span>
-                    <div className="w-10 h-5 bg-orange-500 rounded-full flex items-center px-1"><div className="w-3 h-3 bg-white rounded-full ml-auto"></div></div>
-                 </div>
-                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center">
-                    <span className="text-sm font-bold text-slate-700">Backup Automático</span>
-                    <div className="w-10 h-5 bg-emerald-500 rounded-full flex items-center px-1"><div className="w-3 h-3 bg-white rounded-full ml-auto"></div></div>
-                 </div>
+              <div className="grid gap-4">
+                <button 
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4 hover:bg-orange-50 hover:border-orange-200 transition-all group"
+                >
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-600 shadow-sm group-hover:bg-orange-600 group-hover:text-white transition-all"><UserPlus size={20} /></div>
+                  <div className="text-left">
+                    <p className="font-bold text-slate-700 text-sm">Adicionar Novo Membro</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Alunos ou Treinadores</p>
+                  </div>
+                </button>
               </div>
            </div>
+        </div>
+      )}
+
+      {/* Modal de Cadastro */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-8 pb-4 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-black text-slate-800">Novo Cadastro</h3>
+                <p className="text-[10px] text-orange-500 font-bold uppercase tracking-widest">Defina os dados de acesso</p>
+              </div>
+              <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X size={20} /></button>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="p-8 pt-4 space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Nome Completo</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    required
+                    placeholder="Ex: João Silva" 
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:border-orange-500"
+                    value={newUserData.name}
+                    onChange={e => setNewUserData({...newUserData, name: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Email de Acesso</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    required
+                    type="email"
+                    placeholder="email@aluno.com" 
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:border-orange-500"
+                    value={newUserData.email}
+                    onChange={e => setNewUserData({...newUserData, email: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Senha de Acesso</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    required
+                    type="password"
+                    placeholder="Crie uma senha para ele" 
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:border-orange-500"
+                    value={newUserData.password}
+                    onChange={e => setNewUserData({...newUserData, password: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Nível de Acesso</label>
+                <div className="flex gap-2">
+                  <button 
+                    type="button"
+                    onClick={() => setNewUserData({...newUserData, role: UserRole.ALUNO})}
+                    className={`flex-1 py-3 rounded-xl border text-[10px] font-bold transition-all ${newUserData.role === UserRole.ALUNO ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-100' : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+                  >
+                    ALUNO
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setNewUserData({...newUserData, role: UserRole.COACH})}
+                    className={`flex-1 py-3 rounded-xl border text-[10px] font-bold transition-all ${newUserData.role === UserRole.COACH ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-100' : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+                  >
+                    COACH
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={creatingUser}
+                className="w-full bg-orange-600 text-white py-5 rounded-[1.5rem] font-black text-sm shadow-xl shadow-orange-100 active:scale-95 transition-all flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
+              >
+                {creatingUser ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <><ShieldCheck size={20} /> Cadastrar e Ativar</>}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>
