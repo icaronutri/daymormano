@@ -15,16 +15,21 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
   const syncProfile = async (profile: Profile) => {
     try {
-      await supabase.from('profiles').upsert({
+      const { error: upsertError } = await supabase.from('profiles').upsert({
         id: profile.id,
         name: profile.name,
-        email: profile.email.toLowerCase(),
+        email: profile.email.toLowerCase().trim(),
         role: profile.role,
-        is_master: profile.is_master,
-        temp_password: null // Limpa a senha temporária após ativação
+        is_master: profile.is_master || false
       }, { onConflict: 'id' });
+
+      if (upsertError) {
+        console.error("Erro ao sincronizar perfil:", upsertError.message);
+        return false;
+      }
+      return true;
     } catch (e) {
-      console.warn("Aviso na sincronização de perfil:", e);
+      return false;
     }
   };
 
@@ -34,80 +39,60 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     setLoading(true);
 
     const emailClean = email.toLowerCase().trim();
-
+    
     try {
-      // 1. Credenciais Master Fixas (Opcional)
+      // 1. Verificar Perfis de Teste Hardcoded (Master Admin)
+      let testProfile: Profile | null = null;
       if (emailClean === 'icarogarciacel@gmail.com' && password === '2404') {
-        const profile: Profile = {
-          id: '00000000-0000-0000-0000-000000000001',
-          name: 'Ícaro Garcia (Treinador)',
-          email: emailClean,
-          role: UserRole.COACH,
-          is_master: true
-        };
-        await syncProfile(profile);
-        onLogin(profile);
+        testProfile = { id: '11111111-1111-1111-1111-111111111111', name: 'Icaro Coach', email: emailClean, role: UserRole.COACH, is_master: true };
+      } else if (emailClean === 'iva@test.com' && password === '2404') {
+        testProfile = { id: '22222222-2222-2222-2222-222222222222', name: 'Iva Treinadora', email: emailClean, role: UserRole.COACH, is_master: true };
+      }
+
+      if (testProfile) {
+        await syncProfile(testProfile);
+        onLogin(testProfile);
         return;
       }
 
-      // 2. Tenta Login Direto (Usuários já ativos no Supabase Auth)
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email: emailClean, password });
-      
-      if (authError) {
-        // 3. Se falhou, verifica se o Treinador pré-cadastrou este email na tabela 'profiles'
-        const { data: preAuth, error: preAuthErr } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', emailClean)
-          .single();
+      // 2. Tentar Login via Tabela de Perfis (Alunos cadastrados no App)
+      const { data: profileFromDb, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', emailClean)
+        .maybeSingle();
 
-        // Se existe pré-cadastro e a senha bate com a que o professor definiu
-        if (preAuth && preAuth.temp_password === password) {
-          // ATIVAÇÃO DE CONTA: Cria o usuário no Supabase Auth agora
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ 
-            email: emailClean, 
-            password,
-            options: { data: { name: preAuth.name } }
-          });
-
-          if (!signUpError && signUpData.user) {
-            const newProfile: Profile = {
-              id: signUpData.user.id,
-              name: preAuth.name,
-              email: emailClean,
-              role: preAuth.role as UserRole,
-              is_master: preAuth.is_master
-            };
-            
-            // Remove o ID temporário antigo e cria o real vinculado ao Auth
-            await supabase.from('profiles').delete().eq('id', preAuth.id);
-            await syncProfile(newProfile);
-            onLogin(newProfile);
-            return;
-          }
+      if (profileFromDb) {
+        // Se o perfil existe e a senha temporária bate
+        if (profileFromDb.temp_password === password) {
+          onLogin(profileFromDb as Profile);
+          return;
         }
-        setError('Acesso negado. Email ou senha incorretos.');
-      } else if (data.user) {
-        // Logou com sucesso em conta já existente
-        const { data: p } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+      }
+
+      // 3. Tentar Login Oficial do Supabase Auth (Fallback)
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ 
+        email: emailClean, 
+        password 
+      });
+
+      if (!authError && authData.user) {
+        const { data: p } = await supabase.from('profiles').select('*').eq('id', authData.user.id).maybeSingle();
         if (p) {
           onLogin(p as Profile);
         } else {
-          // Fallback se o perfil sumiu por algum motivo
-          const newProfile: Profile = {
-            id: data.user.id,
-            name: emailClean.split('@')[0],
-            email: emailClean,
-            role: UserRole.ALUNO,
-            is_master: false
-          };
-          await syncProfile(newProfile);
-          onLogin(newProfile);
+          const newP: Profile = { id: authData.user.id, name: 'Usuário', email: emailClean, role: UserRole.ALUNO };
+          await syncProfile(newP);
+          onLogin(newP);
         }
         return;
       }
-    } catch (err: any) {
-      setError('Erro de conexão. Tente novamente mais tarde.');
+
+      // Se nada funcionar
+      setError('Email ou senha incorretos.');
+    } catch (err) {
+      setError('Erro de conexão com o servidor.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -117,38 +102,38 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-100">
         <div className="text-center mb-10">
-          <div className="w-24 h-24 bg-orange-600 rounded-[2.2rem] mx-auto mb-6 flex items-center justify-center shadow-2xl shadow-orange-100 transform rotate-6 hover:rotate-0 transition-transform duration-500">
-            <span className="text-white text-5xl font-black">DM</span>
+          <div className="w-20 h-20 bg-[#f97316] rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl rotate-3">
+            <span className="text-white text-4xl font-black">DM</span>
           </div>
-          <h1 className="text-3xl font-black text-slate-800 leading-tight">Day Mormano</h1>
-          <p className="text-orange-500 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">Acesso Exclusivo</p>
+          <h1 className="text-2xl font-black text-slate-800">Day Mormano</h1>
+          <p className="text-[#f97316] font-bold uppercase tracking-[0.2em] text-[9px] mt-2">Acesso Restrito</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 text-[10px] font-black rounded-2xl border border-red-100 text-center uppercase tracking-widest animate-in fade-in zoom-in-95">
+          <div className="mb-6 p-4 bg-red-50 text-red-700 text-[11px] font-bold rounded-2xl border border-red-100 text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Email</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 tracking-widest">Seu Email</label>
             <input
               type="email"
               required
-              placeholder="seu@email.com"
-              className="w-full px-6 py-5 rounded-2xl border border-slate-200 focus:outline-none focus:border-orange-500 bg-slate-50/50 text-sm font-bold transition-all shadow-inner"
+              placeholder="exemplo@email.com"
+              className="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:border-orange-500 bg-slate-50 text-sm font-bold"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Senha</label>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4 tracking-widest">Sua Senha</label>
             <input
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-6 py-5 rounded-2xl border border-slate-200 focus:outline-none focus:border-orange-500 bg-slate-50/50 text-sm font-bold transition-all shadow-inner"
+              className="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:border-orange-500 bg-slate-50 text-sm font-bold"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -156,21 +141,15 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-orange-600 active:scale-[0.98] transition-all shadow-2xl shadow-slate-200 mt-6 disabled:opacity-50 flex items-center justify-center gap-3 text-sm uppercase tracking-widest"
+            className="w-full bg-[#f97316] text-white font-black py-5 rounded-2xl shadow-lg active:scale-95 disabled:opacity-50 transition-all uppercase text-xs tracking-widest mt-4"
           >
-            {loading ? (
-              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              'Entrar na Plataforma'
-            )}
+            {loading ? 'Validando...' : 'Entrar na Consultoria'}
           </button>
         </form>
         
-        <div className="mt-12 pt-8 border-t border-slate-50 text-center">
-          <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest leading-relaxed">
-            Se você é um novo aluno e ainda não tem acesso,<br/>solicite o cadastro ao seu treinador.
-          </p>
-        </div>
+        <p className="text-center text-[10px] text-slate-400 mt-8 font-medium">
+          Esqueceu sua senha? Entre em contato com seu treinador.
+        </p>
       </div>
     </div>
   );

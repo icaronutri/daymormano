@@ -1,3 +1,4 @@
+
 export enum UserRole {
   COACH = 'COACH',
   ALUNO = 'ALUNO'
@@ -18,12 +19,13 @@ export interface ChatMessage {
   local_created_at?: number; 
   delivery_status?: 'sending' | 'sent' | 'failed';
   student_id: string;
+  chat_id: string;
   sender_id: string;
-  sender_role: UserRole;
+  sender_role: string; // Alterado para string para aceitar 'coach' ou 'student'
   type: MessageType;
-  text?: string;
+  content?: string; // Alterado de text para content
   attachments?: string[]; 
-  created_at: string; 
+  created_at?: string;
   date: string; 
   status?: FeedbackStatus;
 }

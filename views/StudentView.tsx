@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { 
-  Send, Image as ImageIcon, Utensils, CheckCircle2, MessageSquare
+  Send, Image as ImageIcon, Utensils, CheckCircle2, MessageSquare, Loader2
 } from 'lucide-react';
 import { supabase, uploadCompressedImage } from '../supabase';
 import { Profile, FeedbackStatus, UserRole } from '../types';
@@ -14,7 +15,7 @@ interface StudentViewProps {
 }
 
 const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user }) => {
-  const { messages, sendMessage, deleteMessage } = useChatMessages(user.id, user);
+  const { messages, sendMessage, deleteMessage, isLoading, hasInitialFetch, chatId } = useChatMessages(user.id, user);
   const [inputText, setInputText] = useState('');
   const [uploading, setUploading] = useState(false);
 
@@ -24,7 +25,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
     
     const textSaved = inputText;
     setInputText('');
-    await sendMessage({ text: textSaved, type: 'text' });
+    await sendMessage({ content: textSaved, type: 'text' });
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'meal' | 'body') => {
@@ -38,7 +39,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
       
       await sendMessage({
         type,
-        text: type === 'meal' ? '🍽️ Registro de refeição' : '💪 Foto de evolução',
+        content: type === 'meal' ? '🍽️ Registro de refeição' : '💪 Foto de evolução',
         attachments: [publicUrl],
         status: FeedbackStatus.PENDENTE
       });
@@ -52,20 +53,30 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
   if (activeTab === 'feedback') {
     return (
       <div className="fixed inset-0 bg-[#f0f2f5] z-[100] flex flex-col animate-in slide-in-from-bottom duration-300">
-        <div className="bg-[#075e54] text-white p-4 flex items-center justify-between safe-area-top shadow-md">
+        <div className="bg-[#075e54] text-white p-4 flex items-center justify-between safe-area-top shadow-md relative">
            <div className="flex items-center gap-3">
              <MessageSquare size={22} className="text-emerald-300" />
-             <h2 className="font-bold text-sm">Conversa com Treinador</h2>
+             <div>
+                <h2 className="font-bold text-sm">Conversa com Treinador</h2>
+                <span className="text-[7px] font-mono opacity-50 uppercase tracking-widest block">ID: {chatId}</span>
+             </div>
            </div>
-           <button onClick={() => setActiveTab('today')} className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-lg active:bg-white/20">Sair</button>
+           <button onClick={() => setActiveTab('today')} className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-lg active:bg-white/20 transition-colors">Sair</button>
         </div>
         
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          <ChatThread 
-            messages={messages} 
-            currentUserRole={UserRole.ALUNO} 
-            onDeleteMessage={deleteMessage} 
-          />
+          {isLoading && !hasInitialFetch ? (
+            <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 gap-2">
+              <Loader2 className="animate-spin text-emerald-600" />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recuperando histórico...</span>
+            </div>
+          ) : (
+            <ChatThread 
+              messages={messages} 
+              currentUserRole={UserRole.ALUNO} 
+              onDeleteMessage={deleteMessage} 
+            />
+          )}
           
           <div className="p-2 bg-[#f0f2f5] safe-area-bottom">
             <form onSubmit={handleSendMessage} className="flex items-end gap-2 px-1">
@@ -78,7 +89,7 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
                   onChange={(e) => setInputText(e.target.value)}
                 />
               </div>
-              <button type="submit" className="w-12 h-12 bg-[#128c7e] text-white rounded-full shadow-md active:scale-90 flex items-center justify-center">
+              <button type="submit" className="w-12 h-12 bg-[#128c7e] text-white rounded-full shadow-md active:scale-90 flex items-center justify-center transition-transform">
                 <Send size={20} className="ml-0.5" />
               </button>
             </form>
@@ -87,8 +98,6 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
       </div>
     );
   }
-
-  const todayStr = new Date().toISOString().split('T')[0];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-24 animate-in fade-in duration-700">
@@ -107,37 +116,44 @@ const StudentView: React.FC<StudentViewProps> = ({ activeTab, setActiveTab, user
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl flex flex-col h-[550px] overflow-hidden">
         <div className="p-6 border-b border-slate-50 bg-white flex justify-between items-center">
           <h3 className="font-black text-slate-800 text-sm flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-orange-500" /> Atividade Diária
+            <CheckCircle2 size={16} className="text-orange-500" /> Atividade Recente
           </h3>
-          <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tempo Real</span>
+          <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Sincronizado</span>
         </div>
 
-        <ChatThread 
-          messages={messages.filter(m => m.date === todayStr)} 
-          currentUserRole={UserRole.ALUNO} 
-          onDeleteMessage={deleteMessage} 
-        />
+        {isLoading && !hasInitialFetch ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-2">
+            <Loader2 className="animate-spin text-orange-500" />
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Buscando mensagens...</span>
+          </div>
+        ) : (
+          <ChatThread 
+            messages={messages} 
+            currentUserRole={UserRole.ALUNO} 
+            onDeleteMessage={deleteMessage} 
+          />
+        )}
 
         <div className="p-4 bg-slate-50 border-t border-slate-100">
           <div className="flex gap-3">
-             <label className="flex-1 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-4 active:scale-95 transition-all cursor-pointer shadow-sm">
-                <Utensils size={24} className="mb-1 text-orange-600" />
+             <label className="flex-1 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-4 active:scale-95 transition-all cursor-pointer shadow-sm group">
+                <Utensils size={24} className="mb-1 text-orange-600 group-hover:scale-110 transition-transform" />
                 <span className="text-[9px] font-black uppercase tracking-tighter">Refeição</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'meal')} />
              </label>
-             <label className="flex-1 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-4 active:scale-95 transition-all cursor-pointer shadow-sm">
-                <ImageIcon size={24} className="mb-1 text-purple-600" />
+             <label className="flex-1 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl py-4 active:scale-95 transition-all cursor-pointer shadow-sm group">
+                <ImageIcon size={24} className="mb-1 text-purple-600 group-hover:scale-110 transition-transform" />
                 <span className="text-[9px] font-black uppercase tracking-tighter">Evolução</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'body')} />
              </label>
-             <button onClick={() => setActiveTab('feedback')} className="px-6 bg-[#075e54] text-white rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95">Abrir Chat</button>
+             <button onClick={() => setActiveTab('feedback')} className="px-6 bg-[#075e54] text-white rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 hover:bg-[#0c7a6c] transition-colors">Abrir Chat</button>
           </div>
         </div>
       </div>
 
       {uploading && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-6">
-          <div className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 shadow-2xl">
+          <div className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 shadow-2xl animate-in zoom-in-95">
             <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
             <p className="font-black text-slate-800 text-sm text-center">Processando foto...</p>
           </div>
